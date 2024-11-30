@@ -96,12 +96,13 @@ configurations {
 
 // Configures the libraries/dependencies for your mod.
 dependencies {
-    shade("com.squareup.okhttp3:okhttp:4.9.3")
+    shade("com.squareup.okhttp3:okhttp:4.9.3") {
+        exclude(group = "org.jetbrains.kotlin")
+    }
 
     modCompileOnly("cc.polyfrost:oneconfig-$platform:0.2.2-alpha+")
     modRuntimeOnly("me.djtheredstoner:DevAuth-${if (platform.isFabric) "fabric" else if (platform.isLegacyForge) "forge-legacy" else "forge-latest"}:1.1.2")
 
-    // If we are building for legacy forge, includes the launch wrapper with `shade` as we configured earlier.
     if (platform.isLegacyForge) {
         compileOnly("org.spongepowered:mixin:0.7.11-SNAPSHOT")
         shade("cc.polyfrost:oneconfig-wrapper-launchwrapper:1.0.0-beta17")
