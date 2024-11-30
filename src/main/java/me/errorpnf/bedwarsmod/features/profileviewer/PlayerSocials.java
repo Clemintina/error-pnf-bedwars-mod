@@ -104,9 +104,10 @@ public class PlayerSocials extends GuiScreen {
                     } else {
                         if (mouseButtonDown[i]) {
                             mouseButtonDown[i] = false;
+                            Minecraft.getMinecraft().thePlayer.playSound("random.click", 0.5f, 2f);
                             if (clickMessage[i].contains("Discord")) {
                                 copyToClipboard(urls[i]);
-                                UChat.chat("§7Copied §a" + username + "§7's Discord username.");
+                                UChat.chat("§7Copied §a" + username + "§7's Discord username." + "&8(" + urls[i] +")");
                             } else {
                                 openLink(urls[i]);
                             }

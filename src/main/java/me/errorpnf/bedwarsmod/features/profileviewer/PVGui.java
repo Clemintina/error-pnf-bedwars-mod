@@ -110,10 +110,12 @@ public class PVGui extends GuiScreen {
 
         if (leftButton.getWasClicked()) {
             // cycle through category
+            Minecraft.getMinecraft().thePlayer.playSound("random.click", 0.5f, 2f);
             cycleCategories();
             leftButton.setWasClicked(false);
         } else if (rightButton.getWasClicked()) {
             // cycle through mode
+            Minecraft.getMinecraft().thePlayer.playSound("random.click", 0.5f, 2f);
             cycleModes();
             rightButton.setWasClicked(false);
         }
