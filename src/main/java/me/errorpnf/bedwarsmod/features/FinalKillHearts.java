@@ -39,9 +39,16 @@ public class FinalKillHearts {
             scores.sort(Comparator.comparingInt(Score::getScorePoints).reversed());
 
             List<String> found = scores.stream()
-                    .filter(score -> score.getObjective().getName().equals(sidebar.getName()))
-                    .map(score -> score.getPlayerName() + getSuffixFromContainingTeam(scoreboard, score.getPlayerName()))
+                    .filter(score -> score.getObjective() != null && score.getObjective().getName().equals(sidebar.getName()))
+                    .map(score -> {
+                        String playerName = score.getPlayerName();
+                        if (playerName == null) return "";
+                        String suffix = getSuffixFromContainingTeam(scoreboard, playerName);
+                        return playerName + suffix;
+                    })
+                    .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
+
 
             for (String s : found) {
                 Pattern pattern = Pattern.compile("§a[0-9]§7 YOU");
@@ -61,6 +68,9 @@ public class FinalKillHearts {
     }
 
     private String getSuffixFromContainingTeam(Scoreboard scoreboard, String playerName) {
+        if (playerName == null || playerName.isEmpty()) {
+            return "";
+        }
         for (ScorePlayerTeam team : scoreboard.getTeams()) {
             if (team != null && team.getMembershipCollection().contains(playerName)) {
                 return team.getColorPrefix() + team.getColorSuffix();
@@ -68,4 +78,5 @@ public class FinalKillHearts {
         }
         return "";
     }
+
 }

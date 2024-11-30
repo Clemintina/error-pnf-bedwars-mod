@@ -40,9 +40,16 @@ public class BedwarsGameTeamStatus {
             scores.sort(Comparator.comparingInt(Score::getScorePoints).reversed());
 
             List<String> found = scores.stream()
-                    .filter(score -> score.getObjective().getName().equals(sidebar.getName()))
-                    .map(score -> score.getPlayerName() + getSuffixFromContainingTeam(scoreboard, score.getPlayerName()))
+                    .filter(score -> score.getObjective() != null && score.getObjective().getName().equals(sidebar.getName()))
+                    .map(score -> {
+                        String playerName = score.getPlayerName();
+                        if (playerName == null) return ""; // Handle null playerName safely
+                        String suffix = getSuffixFromContainingTeam(scoreboard, playerName);
+                        return playerName + suffix;
+                    })
+                    .filter(s -> !s.isEmpty()) // Exclude any empty strings
                     .collect(Collectors.toList());
+
 
             for (String scoreboardLine : found) {
                 if (scoreboardLine.endsWith("§7 YOU")) {
@@ -54,6 +61,9 @@ public class BedwarsGameTeamStatus {
     }
 
     private String getSuffixFromContainingTeam(Scoreboard scoreboard, String playerName) {
+        if (playerName == null || playerName.isEmpty()) {
+            return "";
+        }
         for (ScorePlayerTeam team : scoreboard.getTeams()) {
             if (team != null && team.getMembershipCollection().contains(playerName)) {
                 return team.getColorPrefix() + team.getColorSuffix();
@@ -61,6 +71,7 @@ public class BedwarsGameTeamStatus {
         }
         return "";
     }
+
 
     private String findTeamColor(String input) {
         for (String color : TEAM_COLORS) {
