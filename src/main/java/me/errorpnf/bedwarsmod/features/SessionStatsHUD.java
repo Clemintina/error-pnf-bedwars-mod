@@ -2,8 +2,10 @@ package me.errorpnf.bedwarsmod.features;
 
 import cc.polyfrost.oneconfig.config.annotations.Exclude;
 import cc.polyfrost.oneconfig.hud.TextHud;
+import me.errorpnf.bedwarsmod.config.BedwarsModConfig;
 import me.errorpnf.bedwarsmod.data.stats.SessionStats;
 import me.errorpnf.bedwarsmod.mixin.MixinGuiPlayerTabOverlay;
+import me.errorpnf.bedwarsmod.utils.HypixelLocraw;
 import me.errorpnf.bedwarsmod.utils.formatting.FormatUtils;
 import net.minecraft.client.Minecraft;
 
@@ -141,6 +143,32 @@ public class SessionStatsHUD extends TextHud {
             return String.format("%d:%s", minutes, formattedSeconds);
         } else {
             return String.format("0:%s", formattedSeconds);
+        }
+    }
+
+    @Override
+    public boolean shouldShow() {
+        if (BedwarsModConfig.onlyShowHUDWhileInGame) {
+            if (HypixelLocraw.getIsInBedwarsGameLocraw()) {
+                super.shouldShow();
+                return true;
+            } else {
+                if (BedwarsModConfig.showHUDInBedwarsLobby) {
+                    if (HypixelLocraw.getIsInBedwarsLobby()) {
+                        super.shouldShow();
+                        return true;
+                    } else {
+                        super.shouldShow();
+                        return false;
+                    }
+                } else {
+                    super.shouldShow();
+                    return false;
+                }
+            }
+        } else {
+            super.shouldShow();
+            return true;
         }
     }
 }

@@ -16,30 +16,53 @@ public class BedwarsModConfig extends Config {
             name = "Final Kill Hearts",
             category = "Gameplay",
             description =
-                    "Makes your hearts appear to be hardcore hearts \n" +
+                    "Makes your hearts appear to be hardcore hearts\n" +
                             "when you lose your bed.\n\n" +
                     "[WARNING] This may cause incompatibility issues\n" +
                             "with mods such as VanillaHUD."
     )
     public static boolean shouldHardcore = false;
 
+
+    @Switch(
+            name = "Only Show HUD in Game",
+            description = "Disables the Session Stats HUD when you are not\n" +
+                            "actively in a Bedwars game. However, this does not\n" +
+                            "reset or clear your stats for the session.",
+            category = "Session",
+            subcategory = "HUD Behavior"
+    )
+    public static boolean onlyShowHUDWhileInGame = true;
+
+    @Switch(
+            name = "Show HUD in Bedwars Lobby",
+            description = "Show the Session Stats HUD in Bedwars lobbies.\n" +
+                    "Dependent on Only Show HUD in Game switch.",
+            category = "Session",
+            subcategory = "HUD Behavior"
+    )
+    public static boolean showHUDInBedwarsLobby = true;
+
     @Info(
             text = "Will add a way to rearrange/remove certain lines on the session display in the future.",
             category = "Session",
             size = 2,
-            type = InfoType.INFO
+            type = InfoType.INFO,
+            subcategory = "HUD Config"
     )
     public static boolean ignored = true;
 
     @HUD(
             name = "Session Stats HUD",
-            category = "Session"
+            category = "Session",
+            subcategory = "HUD Config"
     )
-    public SessionStatsHUD sessionStatsHUD = new SessionStatsHUD();
+    public static SessionStatsHUD sessionStatsHUD = new SessionStatsHUD();
 
     public BedwarsModConfig() {
         super(new Mod(BedwarsMod.NAME, ModType.UTIL_QOL, "/assets/bedwarsmod/textures/modicon.png"), BedwarsMod.MODID + ".json");
         initialize();
+        addDependency("showHUDInBedwarsLobby", "onlyShowHUDWhileInGame");
         save();
     }
 }

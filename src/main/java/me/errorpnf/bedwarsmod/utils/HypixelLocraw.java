@@ -25,7 +25,13 @@ public class HypixelLocraw {
 
         if (rawGameType.contains("BEDWARS") && gamemode.contains("BEDWARS")) {
             lastBedwarsGameServerID = serverID;
+            isInBedwarsGameLocraw = true;
+        } else {
+            isInBedwarsGameLocraw = false;
         }
+
+        isInBedwarsLobby = rawGameType.contains("BEDWARS") && serverID.contains("lobby");
+
         hasUpdatedLastGameServer = true;
     }
 
@@ -34,6 +40,18 @@ public class HypixelLocraw {
     }
 
     private static boolean isInBedwarsGame = false;
+
+    public static boolean getIsInBedwarsGameLocraw() {
+        return isInBedwarsGameLocraw;
+    }
+
+    private static boolean isInBedwarsGameLocraw = false;
+
+    public static boolean getIsInBedwarsLobby() {
+        return isInBedwarsLobby;
+    }
+
+    private static boolean isInBedwarsLobby = false;
 
     @Subscribe
     public void onTick(TickEvent event) {

@@ -172,7 +172,7 @@ public class SessionStats {
             String killed = matcher.group("killed");
             deaths++;
         } else {
-            System.out.println("No pattern matched for message: " + message);
+            //System.out.println("No pattern matched for message: " + message);
         }
     }
 
