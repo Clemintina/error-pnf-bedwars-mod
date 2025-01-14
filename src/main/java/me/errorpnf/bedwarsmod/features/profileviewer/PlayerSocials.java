@@ -2,12 +2,14 @@ package me.errorpnf.bedwarsmod.features.profileviewer;
 
 import cc.polyfrost.oneconfig.libs.universal.UChat;
 import com.google.gson.JsonObject;
+import me.errorpnf.bedwarsmod.config.BedwarsModConfig;
 import me.errorpnf.bedwarsmod.utils.RenderUtils;
 import me.errorpnf.bedwarsmod.utils.StatUtils;
 import me.errorpnf.bedwarsmod.utils.formatting.FormatUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -62,7 +64,7 @@ public class PlayerSocials extends GuiScreen {
         }
     }
 
-    public void drawTextures(float centerX, float centerY, int mouseX, int mouseY) {
+    public void drawTextures(float centerX, float centerY, float mouseX, float mouseY, float configScale) {
         int numTexturesToDraw = 0;
 
         for (boolean condition : conditions) {
@@ -73,11 +75,20 @@ public class PlayerSocials extends GuiScreen {
 
         if (numTexturesToDraw == 0) {
             RenderUtils.drawStringCentered(fontRenderer, FormatUtils.format("&cNo Socials"), centerX, centerY + 0.5f, true, 0);
+            return;
         }
 
         float totalWidth = (TEXTURE_SIZE * numTexturesToDraw) + (SEPARATION * (numTexturesToDraw - 1));
-
         float x = centerX - (totalWidth / 2.0F);
+
+        // Calculate scaled mouse coordinates
+        float scaledMouseX = mouseX / configScale;
+        float scaledMouseY = mouseY / configScale;
+
+        // Debug: Print mouse coordinates with scaling
+        System.out.println("MouseX: " + mouseX + ", MouseY: " + mouseY);
+        System.out.println("ScaledMouseX: " + scaledMouseX + ", ScaledMouseY: " + scaledMouseY);
+
         for (int i = 0; i < conditions.length; i++) {
             if (conditions[i]) {
                 float y = centerY - (TEXTURE_SIZE / 2.0F);
@@ -91,7 +102,12 @@ public class PlayerSocials extends GuiScreen {
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 drawTexturedQuad(x, y, TEXTURE_SIZE, TEXTURE_SIZE);
 
-                boolean isHovered = isMouseOver(mouseX, mouseY, x, y, TEXTURE_SIZE, TEXTURE_SIZE);
+                // Use scaled mouse coordinates in isMouseOver
+                boolean isHovered = isMouseOver(scaledMouseX, scaledMouseY, x / configScale, y / configScale, TEXTURE_SIZE / configScale, TEXTURE_SIZE / configScale);
+
+                // Debug: Print texture position and hover status
+                System.out.println("Texture " + i + ": x=" + x + ", y=" + y + ", width=" + TEXTURE_SIZE + ", height=" + TEXTURE_SIZE);
+                System.out.println("isHovered: " + isHovered);
 
                 if (isHovered) {
                     String temp = clickMessage[i] + "§b" + urls[i];
@@ -104,17 +120,16 @@ public class PlayerSocials extends GuiScreen {
                     } else {
                         if (mouseButtonDown[i]) {
                             mouseButtonDown[i] = false;
-                            Minecraft.getMinecraft().thePlayer.playSound("random.click", 0.5f, 2f);
                             if (clickMessage[i].contains("Discord")) {
                                 copyToClipboard(urls[i]);
-                                UChat.chat("§7Copied §a" + username + "§7's Discord username." + "&8(" + urls[i] +")");
+                                UChat.chat("§7Copied §a" + username + "§7's Discord username.");
                             } else {
                                 openLink(urls[i]);
                             }
                         }
                     }
                 } else {
-                    mouseButtonDown[i] = false; // reset if not hovered
+                    mouseButtonDown[i] = false; // Reset if not hovered
                 }
                 x += TEXTURE_SIZE + SEPARATION;
             }
@@ -133,7 +148,7 @@ public class PlayerSocials extends GuiScreen {
         tessellator.draw();
     }
 
-    private boolean isMouseOver(int mouseX, int mouseY, float x, float y, float width, float height) {
+    private boolean isMouseOver(float mouseX, float mouseY, float x, float y, float width, float height) {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
@@ -161,7 +176,7 @@ public class PlayerSocials extends GuiScreen {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(text), null);
     }
 
-    private void drawTooltip(String text, int mouseX, int mouseY) {
+    private void drawTooltip(String text, float mouseX, float mouseY) {
         FontRenderer fontRenderer = mc.fontRendererObj;
         List<String> lines = fontRenderer.listFormattedStringToWidth(text, 999); // set max line width
         int maxWidth = 0;

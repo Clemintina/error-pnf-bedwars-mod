@@ -32,10 +32,11 @@ public class SearchForPlayer {
         this.lastBlinkTime = System.currentTimeMillis();
     }
 
-    public void draw(float x, float y, float width, float height, int mouseX, int mouseY, FontRenderer fontRenderer, float guiLeft, float guiTop) {
-        Minecraft.getMinecraft().getTextureManager().bindTexture(isActive || isMouseOver(mouseX, mouseY, x, y, width, height) ? searchBarActive : searchBar);
-        int sizeY = 224;
+    public void draw(float guiLeft, float guiTop, float x, float y, float width, float height, float mouseX, float mouseY, FontRenderer fontRenderer, float scaledX, float scaledY, float scaledWidth, float scaledHeight) {
+        Minecraft.getMinecraft().getTextureManager().bindTexture(isActive || isMouseOver(mouseX, mouseY, scaledX, scaledY, scaledWidth, scaledHeight) ? searchBarActive : searchBar);
+
         int sizeX = 430;
+        int sizeY = 224;
         RenderUtils.drawTexturedRect(guiLeft, guiTop, sizeX, sizeY, GL11.GL_NEAREST);
 
         String displayText = text.isEmpty() && !isActive ? "§7Search..." : text;
@@ -56,7 +57,7 @@ public class SearchForPlayer {
         }
     }
 
-    public void handleMouseInput(int mouseX, int mouseY, float x, float y, float width, float height, int mouseButton) {
+    public void handleMouseInput(float mouseX, float mouseY, float x, float y, float width, float height, int mouseButton) {
         if (mouseButton == 0 && isMouseOver(mouseX, mouseY, x, y, width, height)) {
             isActive = true;
             if (text.equals("§cInvalid Name") || text.isEmpty() || text.equals("§cRate Limit")) {
@@ -123,7 +124,7 @@ public class SearchForPlayer {
         }
     }
 
-    private boolean isMouseOver(int mouseX, int mouseY, float x, float y, float width, float height) {
+    private boolean isMouseOver(float mouseX, float mouseY, float x, float y, float width, float height) {
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 

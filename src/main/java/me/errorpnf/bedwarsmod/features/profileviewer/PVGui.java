@@ -2,6 +2,7 @@ package me.errorpnf.bedwarsmod.features.profileviewer;
 
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
+import me.errorpnf.bedwarsmod.config.BedwarsModConfig;
 import me.errorpnf.bedwarsmod.data.BedwarsExperience;
 import me.errorpnf.bedwarsmod.data.GameModeEnum;
 import me.errorpnf.bedwarsmod.data.stats.Stats;
@@ -14,6 +15,7 @@ import me.errorpnf.bedwarsmod.utils.formatting.RankUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -32,9 +34,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.lang.Math.floor;
+import static java.lang.Math.min;
+
 public class PVGui extends GuiScreen {
     private static int guiLeft;
     private static int guiTop;
+
+    private static int guiLeftAbsolute;
+    private static int guiTopAbsolute;
+
     public static final ResourceLocation pv_bg = new ResourceLocation("bedwarsmod:textures/gui/background.png");
     public EntityOtherPlayerMP entityPlayer = null;
     private ResourceLocation playerLocationSkin = null;
@@ -44,6 +53,10 @@ public class PVGui extends GuiScreen {
     private final String username;
     private final JsonObject playerData;
     private GameModeEnum gamemode;
+
+    private float scaledMouseX;
+    private float scaledMouseY;
+    private float configScale;
 
     public static boolean renderingNametag = false;
 
@@ -67,46 +80,59 @@ public class PVGui extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        int sizeX = 430;
-        guiLeft = (this.width - sizeX) / 2;
-        int sizeY = 224;
-        guiTop = (this.height - sizeY) / 2;
+        configScale = BedwarsModConfig.pvGuiScaleFactor; // Fetch the scale factor from your config
 
+        int baseWidth = 430;
+        int baseHeight = 224;
+
+        int scaledWidth = (int) (baseWidth * configScale);
+        int scaledHeight = (int) (baseHeight * configScale);
+
+        guiLeftAbsolute = (mc.displayWidth - scaledWidth) / 2;
+        guiTopAbsolute = (mc.displayHeight - scaledHeight) / 2;
+
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        int scaleFactor = scaledResolution.getScaleFactor();
+        guiLeft = guiLeftAbsolute / scaleFactor;
+        guiTop = guiTopAbsolute / scaleFactor;
+
+        scaledMouseX = mouseX * scaleFactor;
+        scaledMouseY = mouseY * scaleFactor;
+
+        // Render the background
         super.drawScreen(mouseX, mouseY, partialTicks);
         drawDefaultBackground();
 
-        RenderUtils.blurBackground();
-        RenderUtils.renderBlurredBackground(width, height, guiLeft + 2, guiTop + 2, sizeX - 4, sizeY - 4);
+        GlStateManager.pushMatrix();
 
-        GlStateManager.enableDepth();
-        GlStateManager.translate(0, 0, 5);
-        GlStateManager.translate(0, 0, -3);
+        GlStateManager.scale(1.0 / scaleFactor, 1.0 / scaleFactor, 1.0);
+        GlStateManager.translate(guiLeftAbsolute, guiTopAbsolute, 0); // Adjust position
+        GlStateManager.scale(configScale, configScale, 1.0); // Apply config scale
+        GlStateManager.translate(-guiLeftAbsolute, -guiTopAbsolute, 0); // Reset position
 
-        GlStateManager.disableDepth();
-        GlStateManager.translate(0, 0, -2);
-        GlStateManager.translate(0, 0, 2);
-
-        GlStateManager.disableLighting();
-        GlStateManager.enableDepth();
-        GL14.glBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GlStateManager.enableAlpha();
-        GlStateManager.alphaFunc(516, 0.1F);
-
+        // draw background texture layer
         Minecraft.getMinecraft().getTextureManager().bindTexture(pv_bg);
-        RenderUtils.drawTexturedRect(guiLeft, guiTop, sizeX, sizeY, GL11.GL_NEAREST);
+        RenderUtils.drawTexturedRect(guiLeftAbsolute, guiTopAbsolute, baseWidth, baseHeight, GL11.GL_NEAREST);
+
 
         // render player model
         renderingNametag = true;
-        renderDrawnEntity(mouseX, mouseY, partialTicks);
+        renderDrawnEntity(mouseX, mouseY, partialTicks, scaleFactor);
         renderingNametag = false;
 
-        renderTopCard(guiLeft + (325f * 2f/3f), guiTop + 20, 2, mouseX, mouseY);
+        renderTopCard(guiLeftAbsolute + (325f * 2f/3f), guiTopAbsolute + 20, 2, mouseX, mouseY);
 
         PlayerSocials playerSocials = new PlayerSocials(playerData, username, fontRendererObj);
-        playerSocials.drawTextures(guiLeft + 61.75f, guiTop + 181.875f, mouseX, mouseY);
+        playerSocials.drawTextures(
+                guiLeftAbsolute + 61.75f,
+                guiTopAbsolute + 181.875f,
+                scaledMouseX,
+                scaledMouseY,
+                configScale
+        );
 
         PlayerStatsCard playerStatsCard = new PlayerStatsCard(playerData, fontRendererObj, gamemode);
-        playerStatsCard.drawStatsCard(guiLeft + (410f * 2f/3f), guiTop + (195 * 1f/3f), mouseX, mouseY);
+        playerStatsCard.drawStatsCard(guiLeftAbsolute + (410f * 2f/3f), guiTopAbsolute + (195 * 1f/3f), mouseX, mouseY);
 
         if (leftButton.getWasClicked()) {
             // cycle through category
@@ -124,79 +150,66 @@ public class PVGui extends GuiScreen {
         String modeText = FormatUtils.format("&f") + gamemode.getFullName();
 
         leftButton.drawButton(
-                guiLeft,
-                guiTop,
-                guiLeft + ((370 * 2f/3f) / 2),
-                guiTop + ((594 * 2f/3f) / 2),
-                (440f * 2f/3f) / 2,
-                (59 * 2f/3f) / 2,
-                mouseX,
-                mouseY,
+                guiLeftAbsolute,
+                guiTopAbsolute,
+                guiLeftAbsolute + ((370 * 2f/3f) / 2),
+                guiTopAbsolute + ((594 * 2f/3f) / 2),
+                (440f * 2f/3f) / 2, // 146.667
+                (59 * 2f/3f) / 2, // 19.667...
+                scaledMouseX,
+                scaledMouseY,
                 categoryText,
                 0,
-                fontRendererObj
+                fontRendererObj,
+                guiLeftAbsolute + ((370 * 2f/3f) * configScale / 2),
+                guiTopAbsolute + ((594 * 2f/3f) * configScale / 2),
+                (440f * 2f/3f) * configScale / 2, // 146.667
+                (59 * 2f/3f) * configScale / 2 // 19.667...
         );
 
         rightButton.drawButton(
-                guiLeft,
-                guiTop,
-                guiLeft + ((830 * 2f/3f) / 2),
-                guiTop + ((594 * 2f/3f) / 2),
+                guiLeftAbsolute,
+                guiTopAbsolute,
+                guiLeftAbsolute + ((830 * 2f/3f) / 2),
+                guiTopAbsolute + ((594 * 2f/3f) / 2),
                 (440f * 2f/3f) / 2,
                 (59 * 2f/3f) / 2,
-                mouseX,
-                mouseY,
+                scaledMouseX,
+                scaledMouseY,
                 modeText,
                 1,
-                fontRendererObj
+                fontRendererObj,
+                guiLeftAbsolute + ((830 * 2f/3f) * configScale / 2),
+                guiTopAbsolute + ((594 * 2f/3f) * configScale / 2),
+                (440f * 2f/3f) * configScale / 2,
+                (59 * 2f/3f) * configScale / 2
         );
 
-        searchBox.draw(guiLeft + ((30 * 2f/3f) / 2) - 0.5f, guiTop + ((594 * 2f/3f) / 2) + 0.5f, (310f * 2f/3f) / 2, (59 * 2f/3f) / 2, mouseX, mouseY, fontRendererObj, guiLeft, guiTop);
+        searchBox.draw(
+                guiLeftAbsolute,
+                guiTopAbsolute,
+                guiLeftAbsolute + ((30 * 2f/3f) / 2) - 0.5f,
+                guiTopAbsolute + ((594 * 2f/3f) / 2) + 0.5f,
+                (310f * 2f/3f) / 2,
+                (59 * 2f/3f) / 2,
+                scaledMouseX,
+                scaledMouseY,
+                fontRendererObj,
+                guiLeftAbsolute + ((30 * 2f/3f) * configScale / 2) - 0.5f,
+                guiTopAbsolute + ((594 * 2f/3f) * configScale / 2) + 0.5f,
+                (310f * 2f/3f) * configScale / 2,
+                (59 * 2f/3f) * configScale / 2
+        );
         CornerCard cornerCard = new CornerCard();
-        cornerCard.drawCard(guiLeft + ((970 * 2f/3f) / 2), guiTop + 20, fontRendererObj, playerData);
+        cornerCard.drawCard(guiLeftAbsolute + ((970 * 2f/3f) / 2), guiTopAbsolute + 20, fontRendererObj, playerData);
+
+        GlStateManager.popMatrix();
     }
-
-
 
     @Override
     public boolean doesGuiPauseGame() {
         return false;
     }
-
-    private void renderLiving(EntityLivingBase ent, float x, float y, float scale, int rotation) {
-        GlStateManager.enableColorMaterial();
-        GlStateManager.pushMatrix();
-        GlStateManager.translate((double) x + (40 * scale), (double) y + (107) * scale, 50.0);
-        GlStateManager.scale(-(scale * 50), scale * 50, scale * 50);
-        GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
-        float f = ent.renderYawOffset;
-        float f1 = ent.rotationYaw;
-        float f2 = ent.rotationPitch;
-        float f3 = ent.prevRotationYawHead;
-        float f4 = ent.rotationYawHead;
-        GlStateManager.rotate(135.0f, 0.0f, 1.0f, 0.0f);
-        RenderHelper.enableStandardItemLighting();
-        GlStateManager.rotate(-135.0f, 0.0f, 1.0f, 0.0f);
-        float actualRotation = 360F - rotation;
-        ent.renderYawOffset = actualRotation;
-        ent.rotationYaw = actualRotation;
-        ent.rotationYawHead = ent.rotationYaw;
-        ent.prevRotationYawHead = ent.rotationYaw;
-        GlStateManager.translate(0.0f, 0.0f, 0.0f);
-        RenderManager rendermanager = mc.getRenderManager();
-        rendermanager.playerViewX = 0f;
-        rendermanager.setPlayerViewY(180.0f);
-        rendermanager.setRenderShadow(false);
-        rendermanager.doRenderEntity(ent, 0.0, 0.0, 0.0, 0.0f, 1.0f, false);
-        rendermanager.setRenderShadow(true);
-        ent.renderYawOffset = f;
-        ent.rotationYaw = f1;
-        ent.rotationPitch = f2;
-        ent.prevRotationYawHead = f3;
-        ent.rotationYawHead = f4;
-        GlStateManager.popMatrix();
-    }
-
 
     private void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase ent) {
         GlStateManager.enableColorMaterial();
@@ -216,6 +229,12 @@ public class PVGui extends GuiScreen {
         ent.renderYawOffset = (float) Math.atan(mouseX / 40.0F) * 20.0F;
         ent.rotationYaw = (float) Math.atan(mouseX / 40.0F) * 40.0F;
         ent.rotationPitch = -((float) Math.atan(mouseY / 40.0F)) * 20.0F;
+
+        System.out.println("Rotation Yaw: " + ent.rotationYaw);
+        System.out.println("Rotation Pitch: " + ent.rotationPitch);
+        System.out.println("mouseX: " + mouseX);
+        System.out.println("mouseY: " + mouseY);
+
         ent.rotationYawHead = ent.rotationYaw;
         ent.prevRotationYawHead = ent.rotationYaw;
         RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
@@ -236,7 +255,7 @@ public class PVGui extends GuiScreen {
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 
-    private void renderDrawnEntity(int mouseX, int mouseY, float partialTicks) {
+    private void renderDrawnEntity(int mouseX, int mouseY, float partialTicks, float scaleFactor) {
 
         if (entityPlayer == null) {
             JsonObject apiReq = playerData;
@@ -323,14 +342,19 @@ public class PVGui extends GuiScreen {
 
         GlStateManager.color(1, 1, 1, 1);
         if (entityPlayer != null) {
+            float scaledMouseX = mouseX * scaleFactor;
+            float scaledMouseY = mouseY * scaleFactor;
+
             drawEntityOnScreen(
-                    guiLeft + 61,
-                    guiTop + 136 + 7,
+                    guiLeftAbsolute + 61,
+                    guiTopAbsolute + 136 + 7,
                     65,
-                    guiLeft + 61 - mouseX,
-                    guiTop + 137 - mouseY,
+                    (guiLeftAbsolute + (61 * scaleFactor) - scaledMouseX),
+                    (guiTopAbsolute + (137 * scaleFactor) - scaledMouseY),
                     entityPlayer
             );
+
+            System.out.println("scaleFactor: " + scaleFactor);
         }
     }
 
@@ -358,7 +382,7 @@ public class PVGui extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        searchBox.handleMouseInput(mouseX, mouseY, guiLeft + ((30 * 2f/3f) / 2) - 0.5f, guiTop + ((594 * 2f/3f) / 2) + 0.5f, (310f * 2f/3f) / 2, (59 * 2f/3f) / 2, mouseButton);
+        searchBox.handleMouseInput(scaledMouseX, scaledMouseY, guiLeftAbsolute + ((30 * 2f/3f) * configScale / 2) - 0.5f, guiTopAbsolute + ((594 * 2f/3f) * configScale / 2) + 0.5f, (310f * 2f/3f) * configScale / 2, (59 * 2f/3f) * configScale / 2, mouseButton);
     }
 
     public void cycleCategories() {

@@ -2,6 +2,7 @@
 
 import org.polyfrost.gradle.util.noServerRunConfigs
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.archivesName
 
 // Adds support for kotlin, and adds the Polyfrost Gradle Toolkit
 // which we use to prepare the environment.
@@ -196,5 +197,31 @@ tasks {
         dependsOn(shadowJar)
         archiveClassifier.set("")
         enabled = false
+    }
+}
+
+tasks.named("build") {
+    doLast {
+        // Path to the built JAR file after the build (from the build/libs directory)
+        val finalJar = file("build/libs/${mod_archives_name}-1.8.9-forge-${mod_version}.jar")
+
+        // Ensure the built JAR file exists before proceeding
+        if (finalJar.exists()) {
+            // Additional destination directory
+            val additionalDestDir = file("D:/Prism Launcher/Instances/2345/.minecraft/mods")
+
+            // Ensure the destination directory exists
+            additionalDestDir.mkdirs()
+
+            // Copy the final JAR to the additional directory
+            copy {
+                from(finalJar)
+                into(additionalDestDir)
+            }
+
+            println("JAR file copied to: ${additionalDestDir.absolutePath}")
+        } else {
+            println("Built JAR file does not exist: ${finalJar.absolutePath}")
+        }
     }
 }

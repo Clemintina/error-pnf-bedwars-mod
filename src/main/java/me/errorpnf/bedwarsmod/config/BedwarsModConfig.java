@@ -3,6 +3,7 @@ package me.errorpnf.bedwarsmod.config;
 import cc.polyfrost.oneconfig.config.Config;
 import cc.polyfrost.oneconfig.config.annotations.HUD;
 import cc.polyfrost.oneconfig.config.annotations.Info;
+import cc.polyfrost.oneconfig.config.annotations.Slider;
 import cc.polyfrost.oneconfig.config.annotations.Switch;
 import cc.polyfrost.oneconfig.config.data.InfoType;
 import cc.polyfrost.oneconfig.config.data.Mod;
@@ -23,6 +24,15 @@ public class BedwarsModConfig extends Config {
     )
     public static boolean shouldHardcore = false;
 
+    @Slider(
+            name = "Profile Viewer Scale",
+            category = "Profile Viewer",
+            description = "Adjust the scale of the Profile Viewer.\n" +
+                    "This may cause weird things to happen.",
+            min = 1.0f,
+            max = 5.0f
+    )
+    public static float pvGuiScaleFactor = 3;
 
     @Switch(
             name = "Only Show HUD in Game",

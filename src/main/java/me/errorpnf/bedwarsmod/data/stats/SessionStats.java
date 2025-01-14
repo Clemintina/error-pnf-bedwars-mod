@@ -109,20 +109,28 @@ public class SessionStats {
         String message = FormatUtils.removeResetCode(event.message.getFormattedText());
         String unformattedMessage = event.message.getUnformattedText();
 
+        //System.out.println(event.message.getFormattedText());
+
         Matcher matcher;
 
-        if (gameStartPattern.matcher(message).matches()) {
+
+        if (event.message.getFormattedText().contains("§e§lCollect Lucky Blocks from resource generators") ||
+                event.message.getFormattedText().contains("§e§lProtect your bed and destroy the enemy beds.") ||
+                event.message.getFormattedText().contains("§e§lPlayers swap teams at random intervals!") ||
+                event.message.getFormattedText().contains("§e§lPlayers")) {
             startGameTimer();
         }
 
         if (!HypixelLocraw.getIsInBedwarsGame()) return;
 
+        if (event.message.getFormattedText().contains("§r§e§l1st Killer §r§7")) {
+            queueGloatStats();
+        }
+
         if ((matcher = gameEndPattern.matcher(unformattedMessage)).find()) {
             String matchedTeam = matcher.group("team");
             gamesEnded++;
             stopGameTimer();
-
-            queueGloatStats();
 
             if (matchedTeam.contains(BedwarsGameTeamStatus.getCurrentTeam())) {
                 wins++;
@@ -174,12 +182,17 @@ public class SessionStats {
         } else {
             //System.out.println("No pattern matched for message: " + message);
         }
+//
+//        if (gameStartPattern.matcher(message).matches()) {
+//            startGameTimer();
+//        }
     }
 
     @Exclude
     private boolean hasGameEnded = false;
 
     private void startGameTimer() {
+        //System.out.println("started game timer");
         hasGameEnded = false;
         gameTimeTicks = 0;
         gamesPlayed++;
@@ -191,6 +204,8 @@ public class SessionStats {
         if (hasGameEnded) return;
 
         isTimerRunning = true;
+
+        //System.out.println("continued game timer");
     }
 
     private void stopGameTimer() {
@@ -198,6 +213,8 @@ public class SessionStats {
 
         hasGameEnded = true;
         isTimerRunning = false;
+
+        //System.out.println("stopped game timer");
     }
 
     @SubscribeEvent
