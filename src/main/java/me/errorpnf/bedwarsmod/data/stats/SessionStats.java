@@ -4,6 +4,7 @@ import cc.polyfrost.oneconfig.config.annotations.Exclude;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.errorpnf.bedwarsmod.BedwarsMod;
+import me.errorpnf.bedwarsmod.config.BedwarsModConfig;
 import me.errorpnf.bedwarsmod.data.BedwarsGameTeamStatus;
 import me.errorpnf.bedwarsmod.mixin.MixinGuiPlayerTabOverlay;
 import me.errorpnf.bedwarsmod.utils.HypixelLocraw;
@@ -303,13 +304,27 @@ public class SessionStats {
 
         String statsString = "Kills: " + kills + " | Finals: " + finalKills + " | Beds: " + bedsBroken;
 
-        String formattedMessage = FormatUtils.format(pfx + "&7Click &b&nhere&r &7to copy this game's stats to your clipboard.");
-        IChatComponent chatComponent = new ChatComponentText(formattedMessage)
-                .setChatStyle(new ChatStyle()
-                        .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bedwarsmod copytexttoclipboard " + statsString))
-                        .setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(
-                                FormatUtils.format("&7Click to copy your stats from the last game.")))));
+        if (BedwarsModConfig.autoSendStats) {
+            switch (BedwarsModConfig.autoSendStatsLocation) {
+                case 0:
+                    Minecraft.getMinecraft().thePlayer.sendChatMessage("/pc " + statsString);
+                    break;
+                case 1:
+                    Minecraft.getMinecraft().thePlayer.sendChatMessage("/ac " + statsString);
+                    break;
+                case 2:
+                    Minecraft.getMinecraft().thePlayer.sendChatMessage("/gc " + statsString);
+                    break;
+            }
+        } else {
+            String formattedMessage = FormatUtils.format(pfx + "&7Click &b&nhere&r &7to copy this game's stats to your clipboard.");
+            IChatComponent chatComponent = new ChatComponentText(formattedMessage)
+                    .setChatStyle(new ChatStyle()
+                            .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bedwarsmod copytexttoclipboard " + statsString))
+                            .setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(
+                                    FormatUtils.format("&7Click to copy your stats from the last game.")))));
 
-        Minecraft.getMinecraft().thePlayer.addChatMessage(chatComponent);
+            Minecraft.getMinecraft().thePlayer.addChatMessage(chatComponent);
+        }
     }
 }

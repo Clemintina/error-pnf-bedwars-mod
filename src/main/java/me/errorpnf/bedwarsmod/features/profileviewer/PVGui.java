@@ -230,10 +230,10 @@ public class PVGui extends GuiScreen {
         ent.rotationYaw = (float) Math.atan(mouseX / 40.0F) * 40.0F;
         ent.rotationPitch = -((float) Math.atan(mouseY / 40.0F)) * 20.0F;
 
-        System.out.println("Rotation Yaw: " + ent.rotationYaw);
-        System.out.println("Rotation Pitch: " + ent.rotationPitch);
-        System.out.println("mouseX: " + mouseX);
-        System.out.println("mouseY: " + mouseY);
+//        System.out.println("Rotation Yaw: " + ent.rotationYaw);
+//        System.out.println("Rotation Pitch: " + ent.rotationPitch);
+//        System.out.println("mouseX: " + mouseX);
+//        System.out.println("mouseY: " + mouseY);
 
         ent.rotationYawHead = ent.rotationYaw;
         ent.prevRotationYawHead = ent.rotationYaw;
@@ -354,7 +354,7 @@ public class PVGui extends GuiScreen {
                     entityPlayer
             );
 
-            System.out.println("scaleFactor: " + scaleFactor);
+//            System.out.println("scaleFactor: " + scaleFactor);
         }
     }
 

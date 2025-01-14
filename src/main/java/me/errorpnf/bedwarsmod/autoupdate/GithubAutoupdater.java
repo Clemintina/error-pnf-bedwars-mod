@@ -13,10 +13,10 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import okhttp3.*;
-import org.apache.commons.io.FileUtils;
 
-import java.io.*;
-import java.net.HttpURLConnection;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
@@ -28,7 +28,6 @@ public class GithubAutoupdater {
     private static String latestVersion;
     private static String downloadUrl;
     private static boolean hasPromptedUpdate = false;
-    private static boolean addedShutdownHook = false;
 
     public static boolean isOutdated = false;
 
@@ -36,64 +35,6 @@ public class GithubAutoupdater {
         MinecraftForge.EVENT_BUS.register(new GithubAutoupdater());
         checkForUpdates();
     }
-
-    private static void addShutdownHook() {
-        if (!addedShutdownHook) {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    File currentMod = new File(Minecraft.getMinecraft().mcDataDir, "mods/Bedwars_Mod-1.8.9-forge-" + BedwarsMod.VERSION + ".jar");
-                    if (currentMod.exists() && isOutdated) {
-                        createDeletionScript(currentMod);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }));
-            addedShutdownHook = true;
-        }
-    }
-
-    private static void createDeletionScript(File modFile) {
-        String os = System.getProperty("os.name").toLowerCase();
-        boolean isWindows = os.contains("win");
-        boolean isUnix = os.contains("nix") || os.contains("nux") || os.contains("mac");
-
-        try {
-            File deletionScript;
-            if (isWindows) {
-                // Windows: create a .bat file
-                deletionScript = new File(Minecraft.getMinecraft().mcDataDir, "delete_old_mod.bat");
-                try (PrintWriter writer = new PrintWriter(deletionScript, "UTF-8")) {
-                    writer.println("del \"" + modFile.getAbsolutePath() + "\"");  // Delete the mod file
-                    writer.println("exit");  // Close the terminal window
-                }
-            } else if (isUnix) {
-                // macOS/Linux: create a .sh file
-                deletionScript = new File(Minecraft.getMinecraft().mcDataDir, "delete_old_mod.sh");
-                try (PrintWriter writer = new PrintWriter(deletionScript, "UTF-8")) {
-                    writer.println("#!/bin/bash");
-                    writer.println("rm \"" + modFile.getAbsolutePath() + "\"");  // Delete the mod file
-                    writer.println("exit 0");  // Exit the shell script
-                }
-                deletionScript.setExecutable(true);  // Make sure the script is executable
-            } else {
-                System.out.println("Unsupported OS: " + os);
-                return;
-            }
-
-            // Execute the deletion script
-            if (deletionScript.exists()) {
-                if (isWindows) {
-                    Runtime.getRuntime().exec("cmd /c start " + deletionScript.getAbsolutePath());
-                } else if (isUnix) {
-                    Runtime.getRuntime().exec(new String[] {"/bin/bash", "-c", deletionScript.getAbsolutePath()});
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     private static String changelog = "";
 
@@ -137,7 +78,6 @@ public class GithubAutoupdater {
                         isOutdated = true;
                         System.out.println("An update is available. Current version: " + currentVersion);
                         hasPromptedUpdate = false;
-                        addShutdownHook();
                     }
                     future.complete(json);
                 } catch (Exception e) {
@@ -147,7 +87,6 @@ public class GithubAutoupdater {
         });
     }
 
-
     @SubscribeEvent
     public void onPlayerLoggedIn(EntityJoinWorldEvent event) {
         if (!isOutdated || hasPromptedUpdate || event.entity != Minecraft.getMinecraft().thePlayer) return;
@@ -156,8 +95,8 @@ public class GithubAutoupdater {
         String currentVersion = BedwarsMod.VERSION;
 
         IChatComponent message = new ChatComponentText(pfx + FormatUtils.format("&7A new version of &bBedwars Mod &7is available! "));
-        IChatComponent downloadLink = new ChatComponentText(pfx + FormatUtils.format("&7Click &b&nhere &r&7to download."));
-        downloadLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bedwarsmod update"));
+        IChatComponent downloadLink = new ChatComponentText(pfx + FormatUtils.format("&7Click &b&nhere&r&7 to download."));
+        downloadLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, downloadUrl));
 
         // Include changelog in the message
         IChatComponent changelogMessage = new ChatComponentText(pfx + FormatUtils.format("&aChangelog:\n&7" + changelog));
@@ -168,41 +107,15 @@ public class GithubAutoupdater {
         UChat.chat(pfx + "&cBedwars Mod v" + currentVersion + " &b-> " + "&aBedwars Mod v" + latestVersion);
     }
 
-
-    public static void downloadAndReplaceMod() {
-        try {
-            File modsFolder = new File(Minecraft.getMinecraft().mcDataDir, "mods");
-            File currentMod = new File(modsFolder, "Bedwars_Mod-1.8.9-forge-" + BedwarsMod.VERSION + ".jar");
-            File newMod = new File(modsFolder, "Bedwars_Mod-1.8.9-forge-" + latestVersion + ".jar");
-
-            FileUtils.copyURLToFile(new URL(downloadUrl), newMod);
-
-            UChat.chat(pfx + "&7Downloaded &bBedwars Mod&7! The update will be applied when the game restarts.");
-
-            isOutdated = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            UChat.chat(pfx + "&7Failed to download the update. If you believe this is an error please report it.");
-        }
-    }
-
-
-
     private static String getJsonFromUrl(String urlString) throws IOException {
         URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
             StringBuilder response = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
                 response.append(line);
             }
             return response.toString();
-        } finally {
-            connection.disconnect();
         }
     }
 }

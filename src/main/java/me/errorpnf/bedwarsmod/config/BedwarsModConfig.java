@@ -1,10 +1,7 @@
 package me.errorpnf.bedwarsmod.config;
 
 import cc.polyfrost.oneconfig.config.Config;
-import cc.polyfrost.oneconfig.config.annotations.HUD;
-import cc.polyfrost.oneconfig.config.annotations.Info;
-import cc.polyfrost.oneconfig.config.annotations.Slider;
-import cc.polyfrost.oneconfig.config.annotations.Switch;
+import cc.polyfrost.oneconfig.config.annotations.*;
 import cc.polyfrost.oneconfig.config.data.InfoType;
 import cc.polyfrost.oneconfig.config.data.Mod;
 import cc.polyfrost.oneconfig.config.data.ModType;
@@ -20,9 +17,25 @@ public class BedwarsModConfig extends Config {
                     "Makes your hearts appear to be hardcore hearts\n" +
                             "when you lose your bed.\n\n" +
                     "[WARNING] This may cause incompatibility issues\n" +
-                            "with mods such as VanillaHUD."
+                            "with mods such as VanillaHUD.",
+            size = 2
     )
     public static boolean shouldHardcore = false;
+
+    @Switch(
+            name = "Auto-Send Stats",
+            category = "Gameplay",
+            description = "Automatically sends your stats from the last game."
+    )
+    public static boolean autoSendStats = true;
+
+    @Dropdown(
+            name = "Auto-Send Stats Location",
+            description = "Choose where the stats are sent to.",
+            options = {"Party Chat", "Public Chat", "Guild Chat"},
+            category = "Gameplay"
+    )
+    public static int autoSendStatsLocation = 0;
 
     @Slider(
             name = "Profile Viewer Scale",

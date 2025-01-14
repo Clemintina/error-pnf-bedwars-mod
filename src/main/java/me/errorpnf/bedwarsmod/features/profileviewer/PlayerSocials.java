@@ -86,8 +86,8 @@ public class PlayerSocials extends GuiScreen {
         float scaledMouseY = mouseY / configScale;
 
         // Debug: Print mouse coordinates with scaling
-        System.out.println("MouseX: " + mouseX + ", MouseY: " + mouseY);
-        System.out.println("ScaledMouseX: " + scaledMouseX + ", ScaledMouseY: " + scaledMouseY);
+//        System.out.println("MouseX: " + mouseX + ", MouseY: " + mouseY);
+//        System.out.println("ScaledMouseX: " + scaledMouseX + ", ScaledMouseY: " + scaledMouseY);
 
         for (int i = 0; i < conditions.length; i++) {
             if (conditions[i]) {
@@ -106,8 +106,8 @@ public class PlayerSocials extends GuiScreen {
                 boolean isHovered = isMouseOver(scaledMouseX, scaledMouseY, x / configScale, y / configScale, TEXTURE_SIZE / configScale, TEXTURE_SIZE / configScale);
 
                 // Debug: Print texture position and hover status
-                System.out.println("Texture " + i + ": x=" + x + ", y=" + y + ", width=" + TEXTURE_SIZE + ", height=" + TEXTURE_SIZE);
-                System.out.println("isHovered: " + isHovered);
+//                System.out.println("Texture " + i + ": x=" + x + ", y=" + y + ", width=" + TEXTURE_SIZE + ", height=" + TEXTURE_SIZE);
+//                System.out.println("isHovered: " + isHovered);
 
                 if (isHovered) {
                     String temp = clickMessage[i] + "§b" + urls[i];
