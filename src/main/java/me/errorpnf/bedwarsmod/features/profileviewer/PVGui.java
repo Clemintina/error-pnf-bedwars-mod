@@ -117,17 +117,18 @@ public class PVGui extends GuiScreen {
 
         // render player model
         renderingNametag = true;
-        renderDrawnEntity(mouseX, mouseY, partialTicks, scaleFactor);
+        renderDrawnEntity(mouseX, mouseY, partialTicks, configScale);
         renderingNametag = false;
 
         renderTopCard(guiLeftAbsolute + (325f * 2f/3f), guiTopAbsolute + 20, 2, mouseX, mouseY);
 
+        // TODO Fix mouse scaling with this
         PlayerSocials playerSocials = new PlayerSocials(playerData, username, fontRendererObj);
         playerSocials.drawTextures(
                 guiLeftAbsolute + 61.75f,
                 guiTopAbsolute + 181.875f,
-                scaledMouseX,
-                scaledMouseY,
+                mouseX,
+                mouseY,
                 configScale
         );
 
@@ -229,11 +230,6 @@ public class PVGui extends GuiScreen {
         ent.renderYawOffset = (float) Math.atan(mouseX / 40.0F) * 20.0F;
         ent.rotationYaw = (float) Math.atan(mouseX / 40.0F) * 40.0F;
         ent.rotationPitch = -((float) Math.atan(mouseY / 40.0F)) * 20.0F;
-
-//        System.out.println("Rotation Yaw: " + ent.rotationYaw);
-//        System.out.println("Rotation Pitch: " + ent.rotationPitch);
-//        System.out.println("mouseX: " + mouseX);
-//        System.out.println("mouseY: " + mouseY);
 
         ent.rotationYawHead = ent.rotationYaw;
         ent.prevRotationYawHead = ent.rotationYaw;
@@ -342,6 +338,9 @@ public class PVGui extends GuiScreen {
 
         GlStateManager.color(1, 1, 1, 1);
         if (entityPlayer != null) {
+            ScaledResolution scaledResolution = new ScaledResolution(mc);
+            int guiScaleFactor = scaledResolution.getScaleFactor();
+
             float scaledMouseX = mouseX * scaleFactor;
             float scaledMouseY = mouseY * scaleFactor;
 
@@ -349,12 +348,10 @@ public class PVGui extends GuiScreen {
                     guiLeftAbsolute + 61,
                     guiTopAbsolute + 136 + 7,
                     65,
-                    (guiLeftAbsolute + (61 * scaleFactor) - scaledMouseX),
-                    (guiTopAbsolute + (137 * scaleFactor) - scaledMouseY),
+                    guiLeftAbsolute + (61 * scaleFactor) - (scaledMouseX * (guiScaleFactor / scaleFactor)),
+                    (guiTopAbsolute + (137 * scaleFactor) - (scaledMouseY * (guiScaleFactor / scaleFactor))),
                     entityPlayer
             );
-
-//            System.out.println("scaleFactor: " + scaleFactor);
         }
     }
 
