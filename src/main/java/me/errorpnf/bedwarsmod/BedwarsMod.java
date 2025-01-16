@@ -1,7 +1,7 @@
 package me.errorpnf.bedwarsmod;
 
 import cc.polyfrost.oneconfig.events.EventManager;
-import me.errorpnf.bedwarsmod.autoupdate.GithubAutoupdater;
+import me.errorpnf.bedwarsmod.autoupdate.ModrinthUpdater;
 import me.errorpnf.bedwarsmod.commands.BedwarsChatStats;
 import me.errorpnf.bedwarsmod.commands.BedwarsModCommand;
 import me.errorpnf.bedwarsmod.commands.MyCommand;
@@ -50,9 +50,9 @@ public class BedwarsMod {
         EventManager.INSTANCE.register(new HypixelLocraw());
 
 
-        EventManager.INSTANCE.register(new GithubAutoupdater());
+        EventManager.INSTANCE.register(new ModrinthUpdater());
 
-        GithubAutoupdater.init();
+        ModrinthUpdater.init();
 //        UpdateManager.init();
     }
 

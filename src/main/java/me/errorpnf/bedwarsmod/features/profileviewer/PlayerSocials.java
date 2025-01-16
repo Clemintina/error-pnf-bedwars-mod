@@ -82,12 +82,8 @@ public class PlayerSocials extends GuiScreen {
         float x = centerX - (totalWidth / 2.0F);
 
         // Calculate scaled mouse coordinates
-        float scaledMouseX = mouseX / configScale;
-        float scaledMouseY = mouseY / configScale;
-
-        // Debug: Print mouse coordinates with scaling
-//        System.out.println("MouseX: " + mouseX + ", MouseY: " + mouseY);
-//        System.out.println("ScaledMouseX: " + scaledMouseX + ", ScaledMouseY: " + scaledMouseY);
+        float scaledMouseX = mouseX * configScale;
+        float scaledMouseY = mouseY * configScale;
 
         for (int i = 0; i < conditions.length; i++) {
             if (conditions[i]) {
@@ -102,16 +98,25 @@ public class PlayerSocials extends GuiScreen {
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                 drawTexturedQuad(x, y, TEXTURE_SIZE, TEXTURE_SIZE);
 
-                // Use scaled mouse coordinates in isMouseOver
-                boolean isHovered = isMouseOver(scaledMouseX, scaledMouseY, x / configScale, y / configScale, TEXTURE_SIZE / configScale, TEXTURE_SIZE / configScale);
+                ScaledResolution scaledResolution = new ScaledResolution(mc);
+                int guiScaleFactor = scaledResolution.getScaleFactor();
 
-                // Debug: Print texture position and hover status
-//                System.out.println("Texture " + i + ": x=" + x + ", y=" + y + ", width=" + TEXTURE_SIZE + ", height=" + TEXTURE_SIZE);
-//                System.out.println("isHovered: " + isHovered);
+                // Use scaled mouse coordinates in isMouseOver
+                boolean isHovered = isMouseOver(scaledMouseX, scaledMouseY, x * configScale, y * configScale, TEXTURE_SIZE * configScale, TEXTURE_SIZE * configScale);
+
+                // debug
+//                System.out.println("mouseX: " + mouseX);
+//                System.out.println("mouseY: " + mouseY);
+//                System.out.println("scaledMouseX: " + scaledMouseX);
+//                System.out.println("scaledMouseY: " + scaledMouseY);
+//                System.out.println("config scale: " + configScale);
+//                System.out.println("gui scale factor: " + guiScaleFactor);
+//                System.out.println("x: " + x);
+//                System.out.println("y: " + y);
 
                 if (isHovered) {
                     String temp = clickMessage[i] + "§b" + urls[i];
-                    drawTooltip(temp, mouseX, mouseY);
+                    drawTooltip(temp, scaledMouseX, scaledMouseY);
 
                     if (Mouse.isButtonDown(0)) {
                         if (!mouseButtonDown[i]) {

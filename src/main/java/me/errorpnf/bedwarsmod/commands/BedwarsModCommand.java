@@ -2,7 +2,6 @@ package me.errorpnf.bedwarsmod.commands;
 
 import cc.polyfrost.oneconfig.libs.universal.UChat;
 import me.errorpnf.bedwarsmod.BedwarsMod;
-import me.errorpnf.bedwarsmod.autoupdate.GithubAutoupdater;
 import me.errorpnf.bedwarsmod.utils.formatting.FormatUtils;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
