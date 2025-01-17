@@ -149,12 +149,12 @@ public class SessionStatsHUD extends TextHud {
     @Override
     public boolean shouldShow() {
         if (BedwarsModConfig.onlyShowHUDWhileInGame) {
-            if (HypixelLocraw.getIsInBedwarsGameLocraw()) {
+            if (HypixelLocraw.isInBedwarsGame()) {
                 super.shouldShow();
                 return true;
             } else {
                 if (BedwarsModConfig.showHUDInBedwarsLobby) {
-                    if (HypixelLocraw.getIsInBedwarsLobby()) {
+                    if (HypixelLocraw.isInBedwarsLobby()) {
                         super.shouldShow();
                         return true;
                     } else {

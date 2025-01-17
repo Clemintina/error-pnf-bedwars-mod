@@ -1,6 +1,8 @@
 package me.errorpnf.bedwarsmod.data.stats;
 
 import cc.polyfrost.oneconfig.config.annotations.Exclude;
+import cc.polyfrost.oneconfig.utils.hypixel.LocrawInfo;
+import cc.polyfrost.oneconfig.utils.hypixel.LocrawUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.errorpnf.bedwarsmod.BedwarsMod;
@@ -109,11 +111,9 @@ public class SessionStats {
     public void onClientChatReceived(ClientChatReceivedEvent event) {
         String message = FormatUtils.removeResetCode(event.message.getFormattedText());
         String unformattedMessage = event.message.getUnformattedText();
-
         //System.out.println(event.message.getFormattedText());
 
         Matcher matcher;
-
 
         if (event.message.getFormattedText().contains("§e§lCollect Lucky Blocks from resource generators") ||
                 event.message.getFormattedText().contains("§e§lProtect your bed and destroy the enemy beds.") ||
@@ -122,7 +122,7 @@ public class SessionStats {
             startGameTimer();
         }
 
-        if (!HypixelLocraw.getIsInBedwarsGame()) return;
+        if (!HypixelLocraw.isInBedwarsGame()) return;
 
         if (event.message.getFormattedText().contains("§r§e§l1st Killer §r§7")) {
             queueGloatStats();
@@ -227,7 +227,7 @@ public class SessionStats {
             }
         }
 
-        if (HypixelLocraw.getIsInBedwarsGame()) {
+        if (HypixelLocraw.isInBedwarsGame()) {
             if (!isTimerRunning) {
                 continueTimer();
             }
