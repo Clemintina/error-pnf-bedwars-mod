@@ -1,8 +1,6 @@
 package me.errorpnf.bedwarsmod.data.stats;
 
 import cc.polyfrost.oneconfig.config.annotations.Exclude;
-import cc.polyfrost.oneconfig.utils.hypixel.LocrawInfo;
-import cc.polyfrost.oneconfig.utils.hypixel.LocrawUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import me.errorpnf.bedwarsmod.BedwarsMod;
