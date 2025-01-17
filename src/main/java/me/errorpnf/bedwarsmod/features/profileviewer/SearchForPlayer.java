@@ -147,7 +147,7 @@ public class SearchForPlayer {
             StatUtils s = new StatUtils(cachedData);
             String displayUsername = s.getStat("player.displayname");
 
-            BedwarsMod.INSTANCE.openGui = new PVGui(displayUsername, cachedData, gamemode);
+            BedwarsMod.getInstance().openGui = new PVGui(displayUsername, cachedData, gamemode);
         } else {
             ApiUtils apiUtils = new ApiUtils();
             apiUtils.hypixelApiRequest(text).thenAccept(jsonObject -> {
@@ -158,7 +158,7 @@ public class SearchForPlayer {
 
                         String displayUsername = s.getStat("player.displayname");
 
-                        BedwarsMod.INSTANCE.openGui = new PVGui(displayUsername, jsonObject, gamemode);
+                        BedwarsMod.getInstance().openGui = new PVGui(displayUsername, jsonObject, gamemode);
                     }
                 }
             }).exceptionally(throwable -> {

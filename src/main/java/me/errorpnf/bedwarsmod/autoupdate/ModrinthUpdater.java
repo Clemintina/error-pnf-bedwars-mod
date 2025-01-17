@@ -28,7 +28,11 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class ModrinthUpdater {
-    public final String pfx = BedwarsMod.prefix;
+    private final String pfx;
+
+    public ModrinthUpdater(String modPrefix) {
+        this.pfx = modPrefix;
+    }
 
     private String latestVersion;
     private String downloadUrl;
@@ -37,7 +41,7 @@ public class ModrinthUpdater {
     public boolean isOutdated = false;
 
     public void init() {
-        MinecraftForge.EVENT_BUS.register(new ModrinthUpdater());
+        MinecraftForge.EVENT_BUS.register(new ModrinthUpdater(pfx));
         checkForUpdates();
     }
 

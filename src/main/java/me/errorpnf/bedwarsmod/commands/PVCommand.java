@@ -53,7 +53,7 @@ public class PVCommand extends CommandBase {
             StatUtils s = new StatUtils(cachedData);
             String displayUsername = s.getStat("player.displayname");
 
-            BedwarsMod.INSTANCE.openGui = new PVGui(displayUsername, cachedData, gamemode);
+            BedwarsMod.getInstance().openGui = new PVGui(displayUsername, cachedData, gamemode);
         } else {
             UChat.chat("&aFetching stats for &3" + username + "&a...");
             ApiUtils apiUtils = new ApiUtils();
@@ -65,7 +65,7 @@ public class PVCommand extends CommandBase {
 
                         String displayUsername = s.getStat("player.displayname");
 
-                        BedwarsMod.INSTANCE.openGui = new PVGui(displayUsername, jsonObject, gamemode);
+                        BedwarsMod.getInstance().openGui = new PVGui(displayUsername, jsonObject, gamemode);
                     } else {
                         UChat.chat("&cError fetching data for &a" + username + "&c. Did you spell their username correctly?");
                     }
