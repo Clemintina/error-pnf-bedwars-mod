@@ -52,8 +52,9 @@ public class BedwarsMod {
 
         EventManager.INSTANCE.register(new ModrinthUpdater());
 
-        ModrinthUpdater.init();
-//        UpdateManager.init();
+        ModrinthUpdater modrinthUpdater = new ModrinthUpdater();
+        modrinthUpdater.init();
+        // UpdateManager.init();
     }
 
     @SubscribeEvent
