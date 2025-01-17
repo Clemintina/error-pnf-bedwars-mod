@@ -54,11 +54,11 @@ public class ApiUtils {
 
     public CompletableFuture<JsonObject> hypixelApiRequest(String username) {
         UUID playerUUID = null;
-       try {
-           playerUUID = getPlayerUUIDAsync(username).get();
-       } catch (Exception e) {
-           return CompletableFuture.completedFuture(null);
-       }
+        try {
+            playerUUID = getPlayerUUIDAsync(username).get();
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(null);
+        }
 
         OkHttpClient client = new OkHttpClient();
         String API_BASE_URL = "https://hypixel-bedwars-api-mod-backend.mggpr7qd55.workers.dev/";

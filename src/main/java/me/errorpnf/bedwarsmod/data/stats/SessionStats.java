@@ -113,10 +113,7 @@ public class SessionStats {
 
         Matcher matcher;
 
-        if (event.message.getFormattedText().contains("§e§lCollect Lucky Blocks from resource generators") ||
-                event.message.getFormattedText().contains("§e§lProtect your bed and destroy the enemy beds.") ||
-                event.message.getFormattedText().contains("§e§lPlayers swap teams at random intervals!") ||
-                event.message.getFormattedText().contains("§e§lPlayers")) {
+        if (event.message.getFormattedText().contains("§e§lCollect Lucky Blocks from resource generators") || event.message.getFormattedText().contains("§e§lProtect your bed and destroy the enemy beds.") || event.message.getFormattedText().contains("§e§lPlayers swap teams at random intervals!") || event.message.getFormattedText().contains("§e§lPlayers")) {
             startGameTimer();
         }
 
@@ -315,11 +312,7 @@ public class SessionStats {
             }
         } else {
             String formattedMessage = FormatUtils.format(pfx + "&7Click &b&nhere&r &7to copy this game's stats to your clipboard.");
-            IChatComponent chatComponent = new ChatComponentText(formattedMessage)
-                    .setChatStyle(new ChatStyle()
-                            .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bedwarsmod copytexttoclipboard " + statsString))
-                            .setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(
-                                    FormatUtils.format("&7Click to copy your stats from the last game.")))));
+            IChatComponent chatComponent = new ChatComponentText(formattedMessage).setChatStyle(new ChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bedwarsmod copytexttoclipboard " + statsString)).setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText(FormatUtils.format("&7Click to copy your stats from the last game.")))));
 
             Minecraft.getMinecraft().thePlayer.addChatMessage(chatComponent);
         }
