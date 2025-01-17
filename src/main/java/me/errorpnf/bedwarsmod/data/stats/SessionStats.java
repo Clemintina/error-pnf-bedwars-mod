@@ -253,7 +253,6 @@ public class SessionStats {
         gamesPlayed = 0;
     }
 
-
     @Exclude
     private boolean isGloatQueued = false;
     @Exclude

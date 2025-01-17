@@ -149,7 +149,8 @@ public class SearchForPlayer {
 
             BedwarsMod.INSTANCE.openGui = new PVGui(displayUsername, cachedData, gamemode);
         } else {
-            ApiUtils.hypixelApiRequest(text).thenAccept(jsonObject -> {
+            ApiUtils apiUtils = new ApiUtils();
+            apiUtils.hypixelApiRequest(text).thenAccept(jsonObject -> {
                 if (jsonObject != null) {
                     StatUtils s = new StatUtils(jsonObject);
                     if (!s.getStat("player.displayname").equals("Stat not found")) {

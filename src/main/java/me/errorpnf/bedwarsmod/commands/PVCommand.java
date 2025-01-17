@@ -56,7 +56,8 @@ public class PVCommand extends CommandBase {
             BedwarsMod.INSTANCE.openGui = new PVGui(displayUsername, cachedData, gamemode);
         } else {
             UChat.chat("&aFetching stats for &3" + username + "&a...");
-            ApiUtils.hypixelApiRequest(username).thenAccept(jsonObject -> {
+            ApiUtils apiUtils = new ApiUtils();
+            apiUtils.hypixelApiRequest(username).thenAccept(jsonObject -> {
                 if (jsonObject != null) {
                     StatUtils s = new StatUtils(jsonObject);
                     if (!s.getStat("player.displayname").equals("Stat not found")) {

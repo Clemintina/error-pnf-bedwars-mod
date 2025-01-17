@@ -75,7 +75,8 @@ public class BedwarsChatStats extends CommandBase {
             PrintChatStats.printChatStats(username, cachedData, gamemode);
         } else {
             UChat.chat("&aFetching Stats for &3" + username + "&a...");
-            ApiUtils.hypixelApiRequest(username).thenAccept(jsonObject -> {
+            ApiUtils apiUtils = new ApiUtils();
+            apiUtils.hypixelApiRequest(username).thenAccept(jsonObject -> {
                 ApiCacheManager.cacheRequest(username, jsonObject);
 
                 PrintChatStats.printChatStats(username, jsonObject, gamemode);
